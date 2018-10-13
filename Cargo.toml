@@ -1,0 +1,8 @@
+[workspace]
+
+members = [
+    "risso_admin",
+    "risso_api",
+    "risso_actix",
+    "risso_tower"
+]

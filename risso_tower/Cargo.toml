@@ -1,0 +1,18 @@
+[package]
+name = "risso_tower"
+version = "0.1.0"
+authors = ["Sylvain Wallez <sylvain@bluxte.net>"]
+
+[dependencies]
+
+risso_api = { path = "../risso_api" }
+
+tower-web = "0.2.2"
+
+# FIXME: publish diesel from risso_api to use the same version
+diesel = { version = "1.3", features = ["sqlite", "r2d2"] }
+
+failure = "0.1"
+
+serde = "1.0"
+serde_json = "1.0"
