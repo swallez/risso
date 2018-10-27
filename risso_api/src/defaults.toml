@@ -1,0 +1,20 @@
+[general]
+# default url for gravatar. {} is where the hash will be placed
+gravatar_url = "https://www.gravatar.com/avatar/{}?d=identicon"
+
+[database]
+db_path = "data/comments.db"
+min_connections = 1 # Keep resources low, but check at creation time
+max_connections = 10
+
+[smtp]
+# username =
+# password =
+host = "localhost"
+port = 25
+from = "risso@example.com"
+to = "blog-admin@example.com"
+
+[actix]
+listen_addr = "127.0.0.1:8080"
+allowed_origins = []

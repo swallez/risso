@@ -1,16 +1,55 @@
 [package]
 name = "risso_api"
 version = "0.1.0"
+description = "API implementation of a Rust clone of the ISSO comment server"
 authors = ["Sylvain Wallez <sylvain@bluxte.net>"]
+license = "Apache-2.0"
 
 [dependencies]
-diesel = { version = "1.3", features = ["sqlite", "r2d2"] }
+# Essentials
+failure = "0.1"
+lazy_static = "1.1.0"
+log = "0.4.6"
+slog = "2.4.1"
 chrono = { version = "0.4", features = ["serde"] }
+maplit = "1.0.1"
 
+# The mighty serde and its minions
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+validator = "0.8.0"
+validator_derive = "0.8.0"
 
-tower-web = "0.2.2"
+# Async support
+futures = "0.1"
+tokio-threadpool = "0.1"
+tokio-executor = "0.1.5"
 
-failure = "0.1"
+# Database stuff
+diesel = { version = "1.3", features = ["sqlite", "r2d2"] }
+#diesel_codegen = "0.16.1"
+#diesel_codegen_syntex = "0.9.0"
+
+# Mardown & html handling
+ammonia = "1.2.0" # HTML sanitizer
+pulldown-cmark = "0.1.2"
+
+# Misc
+config = { version = "0.9.1", features = ["toml"] }
+prometheus = "0.4.2"
+
+sha1 = "0.6.0"
+md5 = "0.5.0"
+
+lettre = "0.8.2"
+lettre_email = "0.8.2"
+native-tls = "0.1"
+
+# Later
+#cache_2q = "0.10.0"
+#cached = "0.8.0"
+
+#[target.x86_64-unknown-linux-musl.dependencies]
+# See https://github.com/emk/rust-musl-builder#making-diesel-work
+#libsqlite3-sys = { version = "*", features = ["bundled"] }

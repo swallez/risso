@@ -4,6 +4,7 @@ use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 
 use risso_api::models::*;
+use risso_api::schema::*;
 //use crate::models::*;
 
 fn main() {

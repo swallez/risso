@@ -1,0 +1,5 @@
+# Ignore everything except the executable to reduce the amount of data sent to the Docker daemon
+# (the infamous "Sending build context to Docker daemon").
+
+*
+!target/x86_64-unknown-linux-musl/release/risso_actix
