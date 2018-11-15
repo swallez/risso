@@ -145,10 +145,12 @@ pub fn new_comment(ctx: &ApiContext, uri: String, req: NewComment) -> BoxFuture<
 /// Sanitize html
 ///
 /// ```rust
-/// assert_eq!(sanitize_html("foo"), "foo");
+/// use risso_api::sanitize_html;
+///
+/// assert_eq!(sanitize_html("foo"), "foo".to_owned());
 /// ```
 ///
-pub fn sanitize_html(title: &str, html: &str) -> String {
+pub fn sanitize_html(html: &str) -> String {
 
     // See https://posativ.org/isso/docs/configuration/server/#markup
 
