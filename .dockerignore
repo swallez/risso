@@ -2,4 +2,4 @@
 # (the infamous "Sending build context to Docker daemon").
 
 *
-!target/x86_64-unknown-linux-musl/release/risso_actix
+!target/risso_actix-musl-release

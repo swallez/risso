@@ -4,5 +4,5 @@
 FROM scratch
 
 WORKDIR /risso
-COPY target/x86_64-unknown-linux-musl/release/risso_actix .
+COPY target/risso_actix-musl-release .
 CMD ["/risso/risso_actix"]
