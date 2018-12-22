@@ -1,5 +1,6 @@
 #![allow(proc_macro_derive_resolution_fallback)]
 
+use diesel::*;
 // Schema generated with `diesel print-schema` and hand-edited to remove lots of Nullable
 
 table! {

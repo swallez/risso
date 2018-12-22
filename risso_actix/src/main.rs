@@ -1,57 +1,32 @@
-extern crate actix_web;
-extern crate actix_web_requestid;
-extern crate futures;
-extern crate risso_api;
-
-extern crate failure;
-extern crate log;
-extern crate intern;
-
-#[macro_use]
-extern crate serde_derive;
-
-#[macro_use(
-    slog_o,
-    slog_log,
-    slog_trace,
-    slog_debug,
-    slog_info,
-    slog_warn,
-    slog_error,
-    slog_crit
-)]
-#[macro_use]
-extern crate slog;
-extern crate slog_async;
-#[macro_use]
-extern crate slog_scope;
-extern crate slog_json;
-extern crate slog_term;
-
-extern crate prometheus;
+use serde_derive::Deserialize;
 
 pub mod logs;
 pub mod metrics;
 
-use std::sync::Once;
 use actix_web::http::header;
 use actix_web::http::Method;
 use actix_web::middleware::cors;
 use actix_web::{server, App, AsyncResponder, HttpRequest, HttpResponse, Json, Path, Query, Responder, State};
+use std::sync::Once;
 
 use risso_api::context::*;
+use risso_api::log_macros::*;
 
 use futures::prelude::*;
 
-use logs::RequestLogger;
+use crate::logs::RequestLogger;
+
+mod log_macros {
+    // Since slog also defines log's macros, we can't blindly import "slog::*" but always repeating
+    // these imports is a pain. So just `use crate::log_macros::*` and you're all set.
+    pub use log::{debug, error, info, trace, warn};
+    pub use slog::{slog_crit, slog_debug, slog_error, slog_info, slog_log, slog_o, slog_trace, slog_warn};
+}
 
 fn unsubscribe(state: State<ApiContext>, path: Path<(String, String, String)>) -> impl Responder {
-
     let (id, email, key) = path.into_inner();
 
-    risso_api::unsubscribe(&state, id, email, key)
-        .map(Json)
-        .responder()
+    risso_api::unsubscribe(&state, id, email, key).map(Json).responder()
 }
 
 pub fn view(id: Path<String>, req: HttpRequest<ApiContext>) -> impl Responder {
@@ -72,7 +47,7 @@ pub struct NewCommentParams {
 }
 
 pub fn new_comment(
-    log: RequestLogger,
+    _log: RequestLogger,
     state: State<ApiContext>,
     req: Query<NewCommentParams>,
     body: Json<risso_api::NewComment>,
@@ -82,17 +57,10 @@ pub fn new_comment(
         .responder()
 }
 
-pub fn fetch(
-    log: RequestLogger,
-    state: State<ApiContext>,
-    req: Query<risso_api::FetchRequest>)
-    -> impl Responder {
-
+pub fn fetch(log: RequestLogger, state: State<ApiContext>, req: Query<risso_api::FetchRequest>) -> impl Responder {
     slog_info!(log, "Fetching comments");
 
-    risso_api::fetch(&state, req.into_inner())
-        .map(Json)
-        .responder()
+    risso_api::fetch(&state, req.into_inner()).map(Json).responder()
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +72,6 @@ pub struct ActixConfig {
 }
 
 pub fn main() -> Result<(), failure::Error> {
-
     let (_guard, _log) = logs::setup_slog();
 
     info!("Starting...");
@@ -128,8 +95,16 @@ pub fn main() -> Result<(), failure::Error> {
             .route("/feed", Method::GET, feed)
             .route("/id/{id}", Method::GET, view)
             .route("/id/{id}/unsubscribe/{email}/{key}", Method::GET, unsubscribe)
-            .route("/id/{id}/{action:(edit|delete|activate)}/{key}", Method::GET, comment_action)
-            .route("/id/{id}/{action:(edit|delete|activate)}/{key}", Method::POST, comment_action)
+            .route(
+                "/id/{id}/{action:(edit|delete|activate)}/{key}",
+                Method::GET,
+                comment_action,
+            )
+            .route(
+                "/id/{id}/{action:(edit|delete|activate)}/{key}",
+                Method::POST,
+                comment_action,
+            )
             .route("/id/{id}/like", Method::POST, like)
             .route("/id/{id}/dislike", Method::POST, dislike)
             .route("/preview", Method::POST, preview)
@@ -146,7 +121,6 @@ pub fn main() -> Result<(), failure::Error> {
 }
 
 fn build_cors(origins: &Vec<String>) -> cors::Cors {
-
     static CHECK: Once = Once::new();
     CHECK.call_once(|| {
         if origins.is_empty() {
@@ -166,14 +140,12 @@ fn build_cors(origins: &Vec<String>) -> cors::Cors {
     cors.finish()
 }
 
-
 //--------------------------------------------------------------------------------------------------
 // Stubs
 
 fn todo() -> HttpResponse {
     HttpResponse::NotImplemented().body("Not implemented yet!")
 }
-
 
 fn get_counts(_state: State<ApiContext>) -> HttpResponse {
     todo()
@@ -206,7 +178,3 @@ fn preview(_state: State<ApiContext>) -> HttpResponse {
 fn admin(_state: State<ApiContext>) -> HttpResponse {
     todo()
 }
-
-
-
-

@@ -1,13 +1,16 @@
 #![allow(proc_macro_derive_resolution_fallback)]
 
-use super::context;
-use super::dieselext;
-use super::dieselext::*;
-use super::schema::*;
+use crate::context;
+use crate::dieselext;
+use crate::dieselext::*;
+use crate::log_macros::*;
+use crate::schema::*;
 
 use diesel::prelude::*;
 use diesel::result::QueryResult;
 use diesel::sql_types::Bool;
+
+use serde_derive::{Deserialize, Serialize};
 
 use prometheus::Counter;
 
@@ -67,8 +70,9 @@ lazy_static! {
     static ref HTTP_COUNTER: Counter = register_counter!(opts!(
         "example_http_requests_total",
         "Total number of HTTP requests made.",
-        labels!{"handler" => "all",}
-    )).unwrap();
+        labels! {"handler" => "all",}
+    ))
+    .unwrap();
 }
 
 impl Comment {
@@ -83,8 +87,8 @@ impl Comment {
         asc: bool,
         limit: Option<i64>,
     ) -> QueryResult<Vec<Comment>> {
-        use schema::comments;
-        use schema::threads;
+        use crate::schema::comments;
+        use crate::schema::threads;
 
         let mut q = comments::table
             .inner_join(threads::table)
@@ -94,7 +98,8 @@ impl Comment {
                     .eq(uri)
                     .and(CommentMode::mask(mode))
                     .and(comments::created.gt(after)),
-            ).into_boxed();
+            )
+            .into_boxed();
 
         q = match parent {
             None => q.filter(comments::parent.is_null()),
@@ -147,7 +152,8 @@ impl Comment {
                     .eq(uri)
                     .and(CommentMode::mask(mode))
                     .and(comments::created.gt(after)),
-            ).group_by(comments::parent);
+            )
+            .group_by(comments::parent);
 
         trace!("{:?}", diesel::debug_query::<context::DB, _>(&stmt));
 

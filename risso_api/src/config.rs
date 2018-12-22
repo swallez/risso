@@ -1,4 +1,5 @@
-use config_rs::*;
+//use crate::config_rs::*;
+use ::config::*;
 use std::env;
 
 /// Assemble the configuration from various sources:

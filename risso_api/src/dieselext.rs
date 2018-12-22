@@ -8,6 +8,7 @@ use diesel::serialize::{self, Output, ToSql};
 use diesel::sql_types::BigInt;
 use diesel::sql_types::Double;
 use diesel::Expression;
+use serde_derive::{Deserialize, Serialize};
 
 use std;
 use std::io::Write;

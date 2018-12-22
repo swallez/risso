@@ -1,4 +1,5 @@
 [package]
+edition = "2018"
 name = "risso_api"
 version = "0.1.0"
 description = "API implementation of a Rust clone of the ISSO comment server"
@@ -8,23 +9,23 @@ license = "Apache-2.0"
 [dependencies]
 # Essentials
 failure = "0.1"
-lazy_static = "1.1.0"
+lazy_static = "1.2"
 log = "0.4.6"
 slog = "2.4.1"
 chrono = { version = "0.4", features = ["serde"] }
-maplit = "1.0.1"
+maplit = "1.0"
 
 # The mighty serde and its minions
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-validator = "0.8.0"
-validator_derive = "0.8.0"
+validator = "0.8"
+validator_derive = "0.8"
 
 # Async support
 futures = "0.1"
 tokio-threadpool = "0.1"
-tokio-executor = "0.1.5"
+tokio-executor = "0.1"
 
 # Database stuff
 diesel = { version = "1.3", features = ["sqlite", "r2d2"] }
@@ -32,18 +33,18 @@ diesel = { version = "1.3", features = ["sqlite", "r2d2"] }
 #diesel_codegen_syntex = "0.9.0"
 
 # Mardown & html handling
-ammonia = "1.2.0" # HTML sanitizer
-pulldown-cmark = "0.1.2"
+ammonia = "1.2" # HTML sanitizer
+pulldown-cmark = "0.2"
 
 # Misc
-config = { version = "0.9.1", features = ["toml"] }
-prometheus = "0.4.2"
+config = { version = "0.9", features = ["toml"] }
+prometheus = "0.4"
 
-sha1 = "0.6.0"
-md5 = "0.5.0"
+sha1 = "0.6"
+md5 = "0.5"
 
-lettre = "0.8.2"
-lettre_email = "0.8.2"
+lettre = "0.8"
+lettre_email = "0.8"
 native-tls = "0.1"
 
 # Later

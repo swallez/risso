@@ -3,8 +3,11 @@
 // Republish diesel's manager so that server impls don't have to add it to their deps.
 pub use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
+use serde_derive::Deserialize;
 
 use futures::future::Future;
+
+use crate::log_macros::*;
 
 #[derive(Deserialize)]
 struct ContextConfig {
@@ -31,7 +34,7 @@ pub struct ApiBuilder {
 
 impl ApiBuilder {
     pub fn new() -> Result<ApiBuilder, failure::Error> {
-        let config = super::CONFIG.get::<ContextConfig>("database")?;
+        let config = crate::CONFIG.get::<ContextConfig>("database")?;
 
         info!(
             "Using database at {} with max {} connections.",

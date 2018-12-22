@@ -1,52 +1,38 @@
 #![allow(dead_code, deprecated)]
 
-extern crate chrono;
-#[macro_use]
-extern crate diesel;
-extern crate failure;
-extern crate futures;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate md5;
-extern crate serde_json;
-extern crate sha1;
-extern crate tokio_threadpool;
-#[macro_use]
-extern crate lazy_static;
-extern crate config as config_rs; // rename it as we have our own 'config' module
-#[macro_use]
-extern crate log;
+// Some crates still need pre-2018 macro_use either because their macros are private or
+// because of name mismatch.
 #[macro_use]
 extern crate prometheus;
-extern crate pulldown_cmark;
-
 #[macro_use]
 extern crate validator_derive;
-extern crate validator;
-extern crate ammonia;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate lazy_static;
 
-extern crate lettre;
-extern crate lettre_email;
-extern crate native_tls;
+use serde_derive::{Deserialize, Serialize};
+
+//use config as config_rs; // rename it as we have our own 'config' module
 
 use chrono::prelude::*;
 
 use futures::future::Future;
 
-use context::ApiContext;
+use crate::context::ApiContext;
 
 use validator::Validate;
 
 mod config;
 pub mod context;
 pub mod dieselext;
+pub mod log_macros;
 pub mod models;
 pub mod schema;
 
 lazy_static! {
     /// Global configuration object. Each module can pick its own section in the configuration.
-    pub static ref CONFIG: config_rs::Config = config::load_config().unwrap();
+    pub static ref CONFIG: ::config::Config = crate::config::load_config().unwrap();
 
     /// General configurations (private to this crate)
     static ref GENERAL_CONFIG: GeneralConfig = CONFIG.get("general").unwrap();
@@ -136,7 +122,7 @@ pub struct NewComment {
     website: Option<String>,
 }
 
-pub fn new_comment(ctx: &ApiContext, uri: String, req: NewComment) -> BoxFuture<CommentResponse> {
+pub fn new_comment(_ctx: &ApiContext, _uri: String, req: NewComment) -> BoxFuture<CommentResponse> {
     validate!(req);
 
     unimplemented!()
@@ -151,26 +137,49 @@ pub fn new_comment(ctx: &ApiContext, uri: String, req: NewComment) -> BoxFuture<
 /// ```
 ///
 pub fn sanitize_html(html: &str) -> String {
-
     // See https://posativ.org/isso/docs/configuration/server/#markup
 
     let mut sanitizer = ammonia::Builder::default();
 
-    sanitizer.add_tags(vec![
-            "a", "blockquote", "br", "code", "del", "em",
-            "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "ins", "li", "ol",
-             "p", "pre", "strong", "table", "tbody", "td", "th", "thead", "ul"
-        ].into_iter());
+    sanitizer.add_tags(
+        vec![
+            "a",
+            "blockquote",
+            "br",
+            "code",
+            "del",
+            "em",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "hr",
+            "img",
+            "ins",
+            "li",
+            "ol",
+            "p",
+            "pre",
+            "strong",
+            "table",
+            "tbody",
+            "td",
+            "th",
+            "thead",
+            "ul",
+        ]
+        .into_iter(),
+    );
 
     sanitizer.clean(html).to_string()
 }
 
-pub fn send_new_comment_email(title: &str, comment: &NewComment) -> Result<(), failure::Error> {
-
-    use lettre_email::EmailBuilder;
+pub fn send_new_comment_email(title: &str, _comment: &NewComment) -> Result<(), failure::Error> {
     use lettre::*;
+    use lettre_email::EmailBuilder;
     use native_tls::TlsConnector;
-    use native_tls::{Protocol};
 
     let email = EmailBuilder::new()
         .from(SMTP_CONFIG.from.clone())
@@ -220,7 +229,7 @@ pub struct FetchResponse {
 pub fn fetch(ctx: &ApiContext, req: FetchRequest) -> BoxFuture<Vec<CommentResponse>> {
     validate!(req);
 
-    let root_id = req.parent;
+    let _root_id = req.parent;
     let plain = req.is_plain();
 
     let after: f64 = req.after.map_or(0.0f64, |date| dieselext::FloatDateTime(date).to_f64());
@@ -234,7 +243,7 @@ pub fn fetch(ctx: &ApiContext, req: FetchRequest) -> BoxFuture<Vec<CommentRespon
 
     reply_counts
         .join(root_list)
-        .map(move |(reply_counts, root_list)| process_fetched_list(&root_list, plain))
+        .map(move |(_reply_counts, root_list)| process_fetched_list(&root_list, plain))
         .boxed()
 }
 
@@ -272,20 +281,19 @@ fn process_fetched_list(list: &Vec<models::Comment>, plain: bool) -> Vec<Comment
                 hash: digest.digest().to_string(),
                 gravatar_image,
             }
-        }).collect()
+        })
+        .collect()
 }
 
 //--------------------------------------------------------------------------------------------------
 // Unsubscribe
 
-pub fn unsubscribe2(ctx: &ApiContext) -> BoxFuture<CommentResponse> {
+pub fn unsubscribe2(_ctx: &ApiContext) -> BoxFuture<CommentResponse> {
     futures::done(Err(failure::err_msg("Not implemented yet")).into()).boxed()
 }
 
-pub fn unsubscribe(ctx: &ApiContext, id: String, email: String, key: String) -> BoxFuture<()> {
-    futures::done(
-        Err(failure::err_msg("Not implemented yet")).into()
-    ).boxed()
+pub fn unsubscribe(_ctx: &ApiContext, _id: String, _email: String, _key: String) -> BoxFuture<()> {
+    futures::done(Err(failure::err_msg("Not implemented yet")).into()).boxed()
 }
 
 #[cfg(test)]

@@ -1,5 +1,5 @@
 [package]
-
+edition = "2018"
 name = "risso_actix"
 version = "0.1.0"
 description = "Actix-web server front-end to risso_api, a Rust clone of the ISSO comment server"

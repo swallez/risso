@@ -12,13 +12,13 @@ fn main() {
 
     let cnx = SqliteConnection::establish(database_url).expect("Can't connect to database");
 
-    use comments::dsl::*;
+    use crate::comments::dsl::*;
     let all_comments = comments.load::<Comment>(&cnx).expect("comments");
     for comment in all_comments {
         println!("{:?}", comment);
     }
 
-    use threads::dsl::*;
+    use crate::threads::dsl::*;
     let all_threads = threads.load::<Thread>(&cnx).expect("threads");
     for thread in all_threads {
         println!("{:?}", thread);

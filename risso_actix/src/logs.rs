@@ -1,9 +1,11 @@
-use log;
+use log; // see https://github.com/rust-lang/rust/issues/56398
 use slog;
 use slog_async;
 use slog_json;
 use slog_scope;
 use slog_term;
+
+use slog::o;
 
 /// Setup the slog logging framework and the log->slog bridge for crates that use log.
 ///
@@ -71,7 +73,6 @@ impl log::Log for SlogStdLogger {
     }
 
     fn log(&self, r: &log::Record) {
-
         // log provides Option<&'a str> while slog expects &'static str
         // We can expect log's strings to be static, but we can't safely decide to coerce them
         // into static strings, so we use an interning pool.
@@ -79,7 +80,7 @@ impl log::Log for SlogStdLogger {
             use intern::Intern;
             match opt {
                 None => "<unknown>",
-                Some(s) => s.intern()
+                Some(s) => s.intern(),
             }
         };
 

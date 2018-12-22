@@ -1,5 +1,7 @@
 # Risso - a comment server for static websites
 
+[![Build Status](https://travis-ci.org/swallez/risso.svg?branch=master)](https://travis-ci.org/swallez/risso)
+
 Risso is a Rust port of [Isso](https://posativ.org/isso/), a self-hosted comment server.
 The name, obviously, is a combination of "**r**ust" and "isso" (which is itself an acronym).
 
