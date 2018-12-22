@@ -6,7 +6,7 @@ use std::env;
 /// - built-in defaults
 /// - an optional TOML file from the `--config` command line argument
 /// - an optional `local.toml` file, for local development overrides
-pub fn load_config() -> Result<Config, ConfigError> {
+pub fn load() -> Result<Config, ConfigError> {
     let mut s = Config::new();
 
     // Load defaults

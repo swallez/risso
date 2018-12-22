@@ -18,11 +18,11 @@ pub fn setup_slog() -> (slog_scope::GlobalLoggerGuard, slog::Logger) {
     let decorator = slog_term::TermDecorator::new().force_color().build();
     let _term_drain = slog_term::FullFormat::new(decorator).build();
 
-    let _json_drain = slog_json::Json::default(std::io::stderr());
+    let json_drain = slog_json::Json::default(std::io::stderr());
 
     // Pick your format
-    //let drain = _term_drain;
-    let drain = _json_drain;
+    //let drain = term_drain;
+    let drain = json_drain;
 
     // Display only info+
     let drain = drain.filter_level(Level::Info);
@@ -49,7 +49,7 @@ pub fn setup_slog() -> (slog_scope::GlobalLoggerGuard, slog::Logger) {
 }
 
 /// Bridge from log to slog. The slog-stdlog crate has not yet been updated to log 0.4
-/// (see https://github.com/slog-rs/stdlog/pull/5)
+/// (see <https://github.com/slog-rs/stdlog/pull/5>)
 ///
 struct SlogStdLogger(slog::Logger);
 

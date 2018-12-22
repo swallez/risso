@@ -13,6 +13,7 @@ lazy_static = "1.2"
 log = "0.4.6"
 slog = "2.4.1"
 chrono = { version = "0.4", features = ["serde"] }
+num-traits = "0.2"
 maplit = "1.0"
 
 # The mighty serde and its minions

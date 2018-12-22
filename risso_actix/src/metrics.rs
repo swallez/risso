@@ -31,14 +31,14 @@ pub struct MiddlewareBuilder {
 impl MiddlewareBuilder {
     /// Creates the metrics builder by registering a new histogram for request metrics.
     /// Actual middlewares must be created using `build()`.
-    pub fn new() -> std::result::Result<MiddlewareBuilder, failure::Error> {
+    pub fn builder() -> std::result::Result<Self, failure::Error> {
         let histogram_opts = HistogramOpts::new("req_time", "histo_help").subsystem("actix_web");
 
         let histogram = HistogramVec::new(histogram_opts, &["status"]).unwrap();
 
         register(Box::new(histogram.clone()))?;
 
-        Ok(MiddlewareBuilder { histogram })
+        Ok(Self { histogram })
     }
 
     pub fn build(&self) -> MetricsMiddleware {
@@ -57,6 +57,7 @@ use std::time::{Duration, Instant};
 /// It must be created using a `Builder` or `clone()`'d from another middleware, so that all
 /// instances share the same underlying histogram.
 ///
+#[allow(clippy::stutter)]
 #[derive(Clone)]
 pub struct MetricsMiddleware {
     histogram: HistogramVec,
@@ -64,6 +65,7 @@ pub struct MetricsMiddleware {
 }
 
 #[inline]
+#[allow(clippy::cast_precision_loss)]
 fn duration_to_seconds(d: Duration) -> f64 {
     let nanos = f64::from(d.subsec_nanos()) / 1e9;
     d.as_secs() as f64 + nanos

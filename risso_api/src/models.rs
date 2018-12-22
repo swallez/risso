@@ -77,6 +77,7 @@ lazy_static! {
 
 impl Comment {
     /// Return comments for `uri` with `mode`.
+    #[allow(clippy::too_many_arguments)]
     pub fn fetch(
         cnx: &context::Connection,
         uri: String,
@@ -86,7 +87,7 @@ impl Comment {
         order_by: Option<String>,
         asc: bool,
         limit: Option<i64>,
-    ) -> QueryResult<Vec<Comment>> {
+    ) -> QueryResult<Vec<Self>> {
         use crate::schema::comments;
         use crate::schema::threads;
 
@@ -109,7 +110,7 @@ impl Comment {
 
         q = if asc {
             // https://stackoverflow.com/a/48034647
-            match &order_by.unwrap_or(String::from("id"))[..] {
+            match &order_by.unwrap_or_else(|| String::from("id"))[..] {
                 "created" => q.order(comments::created.asc()),
                 "modified" => q.order(comments::modified.asc()),
                 "likes" => q.order(comments::likes.asc()),
@@ -118,7 +119,7 @@ impl Comment {
             }
         } else {
             // FIXME: find a way to avoid this repetition...
-            match &order_by.unwrap_or(String::from("id"))[..] {
+            match &order_by.unwrap_or_else(|| String::from("id"))[..] {
                 "created" => q.order(comments::created.desc()),
                 "modified" => q.order(comments::modified.desc()),
                 "likes" => q.order(comments::likes.desc()),

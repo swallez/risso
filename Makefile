@@ -43,6 +43,9 @@ cloc:
 doc:
 	cargo doc --no-deps
 
+clippy:
+	cargo clippy --all-targets -- -D clippy::all -D clippy::pedantic
+
 test:
 	cargo test
 

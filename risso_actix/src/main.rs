@@ -1,3 +1,7 @@
+// Clippy complains about `State` that could be passed by reference, but actix-web requires it to
+// be passed by value
+#![allow(clippy::needless_pass_by_value)]
+
 use serde_derive::Deserialize;
 
 pub mod logs;
@@ -77,7 +81,7 @@ pub fn main() -> Result<(), failure::Error> {
     let api_builder = ApiBuilder::new()?;
     let api = api_builder.build();
 
-    let metrics_builder = metrics::MiddlewareBuilder::new()?;
+    let metrics_builder = metrics::MiddlewareBuilder::builder()?;
 
     let srv = server::new(move || {
         App::with_state(api.clone())
@@ -113,7 +117,7 @@ pub fn main() -> Result<(), failure::Error> {
     Ok(())
 }
 
-fn build_cors(origins: &Vec<String>) -> cors::Cors {
+fn build_cors(origins: &[String]) -> cors::Cors {
     static CHECK: Once = Once::new();
     CHECK.call_once(|| {
         if origins.is_empty() {

@@ -9,6 +9,7 @@ use diesel::sql_types::BigInt;
 use diesel::sql_types::Double;
 use diesel::Expression;
 use serde_derive::{Deserialize, Serialize};
+use num_traits::cast::ToPrimitive;
 
 use std;
 use std::io::Write;
@@ -25,15 +26,15 @@ pub fn count_star() -> SqlLiteral<BigInt> {
 pub struct FloatDateTime(pub DateTime<Utc>);
 
 impl FloatDateTime {
-    pub fn from_f64(f: f64) -> FloatDateTime {
-        FloatDateTime(Utc.from_utc_datetime(&NaiveDateTime::from_timestamp(
-            f as i64,
-            (f.fract() * 1_000_000_000.0).round() as u32,
-        )))
+    pub fn from_f64(f: f64) -> Option<Self> {
+        Some(FloatDateTime(Utc.from_utc_datetime(&NaiveDateTime::from_timestamp(
+            f.to_i64()?,
+            (f.fract() * 1_000_000_000.0).round().to_u32()?,
+        ))))
     }
 
     pub fn to_f64(&self) -> f64 {
-        (self.0.timestamp() as f64) + (self.0.nanosecond() as f64 / 1_000_000_000.0)
+        (self.0.timestamp().to_f64().unwrap()) + (f64::from(self.0.nanosecond()) / 1_000_000_000.0)
     }
 }
 
@@ -55,7 +56,7 @@ where
 {
     fn from_sql(value: Option<&<DB as Backend>::RawValue>) -> deserialize::Result<Self> {
         let f64_value = <f64 as FromSql<Double, DB>>::from_sql(value)?;
-        Ok(FloatDateTime::from_f64(f64_value))
+        Self::from_f64(f64_value).ok_or_else(||"Can't convert f64 to date".into())
     }
 }
 
@@ -67,7 +68,7 @@ impl Expression for FloatDateTime {
 // Could be automated using https://github.com/JelteF/derive_more
 
 impl From<DateTime<Utc>> for FloatDateTime {
-    fn from(dt: DateTime<Utc>) -> FloatDateTime {
+    fn from(dt: DateTime<Utc>) -> Self {
         FloatDateTime(dt)
     }
 }
@@ -139,7 +140,7 @@ mod tests {
         let n = Utc::now();
         let f = FloatDateTime(n).to_f64();
 
-        let n2 = FloatDateTime::from_f64(f).0;
+        let n2 = FloatDateTime::from_f64(f).unwrap().0;
         let f2 = FloatDateTime(n2).to_f64();
 
         // Verify that all values are within the same millisecond (can't check equality because

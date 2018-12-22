@@ -17,7 +17,7 @@ struct ContextConfig {
 }
 
 /// Single location where choose the actual database backend we're using.
-/// TODO: add compile-time feature to choose between SQLite, PG and MySQL
+/// TODO: add compile-time feature to choose between `SQLite`, `PG` and `MySQL`
 ///
 pub type Connection = diesel::sqlite::SqliteConnection;
 pub type DB = diesel::sqlite::Sqlite;
@@ -33,7 +33,8 @@ pub struct ApiBuilder {
 }
 
 impl ApiBuilder {
-    pub fn new() -> Result<ApiBuilder, failure::Error> {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new() -> Result<Self, failure::Error> {
         let config = crate::CONFIG.get::<ContextConfig>("database")?;
 
         info!(
@@ -56,7 +57,7 @@ impl ApiBuilder {
 
         let registry = prometheus::Registry::new();
 
-        Ok(ApiBuilder {
+        Ok(Self {
             cnx_pool,
             thread_pool,
             registry,
@@ -71,6 +72,7 @@ impl ApiBuilder {
     }
 }
 
+#[allow(clippy::stutter)]
 #[derive(Clone)]
 pub struct ApiContext {
     cnx_pool: Pool<ConnectionManager<Connection>>,

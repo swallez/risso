@@ -32,7 +32,7 @@ pub mod schema;
 
 lazy_static! {
     /// Global configuration object. Each module can pick its own section in the configuration.
-    pub static ref CONFIG: ::config::Config = crate::config::load_config().unwrap();
+    pub static ref CONFIG: ::config::Config = crate::config::load().unwrap();
 
     /// General configurations (private to this crate)
     static ref GENERAL_CONFIG: GeneralConfig = CONFIG.get("general").unwrap();
@@ -87,7 +87,7 @@ pub fn validate<T: validator::Validate, U: 'static + Send>(v: &T) -> Option<BoxF
 ///
 macro_rules! validate {
     ( $( $x:expr ),* ) => {
-        $( if let Some(e) = validate(&$x) { return e; } )*
+        $( if let Some(e) = validate($x) { return e; } )*
     }
 }
 
@@ -122,8 +122,10 @@ pub struct NewComment {
     website: Option<String>,
 }
 
-pub fn new_comment(_ctx: &ApiContext, _uri: String, req: NewComment) -> BoxFuture<CommentResponse> {
-    validate!(req);
+pub fn new_comment(_ctx: &ApiContext, uri: String, req: NewComment) -> BoxFuture<CommentResponse> {
+    validate!(&req);
+    drop(uri);
+    drop(req);
 
     unimplemented!()
 }
@@ -227,12 +229,12 @@ pub struct FetchResponse {
 }
 
 pub fn fetch(ctx: &ApiContext, req: FetchRequest) -> BoxFuture<Vec<CommentResponse>> {
-    validate!(req);
+    validate!(&req);
 
     let _root_id = req.parent;
     let plain = req.is_plain();
 
-    let after: f64 = req.after.map_or(0.0f64, |date| dieselext::FloatDateTime(date).to_f64());
+    let after: f64 = req.after.map_or(0.0_f64, |date| dieselext::FloatDateTime(date).to_f64());
 
     let req1 = req.clone();
     let reply_counts = ctx.spawn_db(move |cnx| models::Comment::reply_count(cnx, req1.uri, None, after));
@@ -247,7 +249,7 @@ pub fn fetch(ctx: &ApiContext, req: FetchRequest) -> BoxFuture<Vec<CommentRespon
         .boxed()
 }
 
-fn process_fetched_list(list: &Vec<models::Comment>, plain: bool) -> Vec<CommentResponse> {
+fn process_fetched_list(list: &[models::Comment], plain: bool) -> Vec<CommentResponse> {
     list.iter()
         .map(|item| {
             let mut digest = sha1::Sha1::new();
@@ -289,11 +291,14 @@ fn process_fetched_list(list: &Vec<models::Comment>, plain: bool) -> Vec<Comment
 // Unsubscribe
 
 pub fn unsubscribe2(_ctx: &ApiContext) -> BoxFuture<CommentResponse> {
-    futures::done(Err(failure::err_msg("Not implemented yet")).into()).boxed()
+    futures::done(Err(failure::err_msg("Not implemented yet"))).boxed()
 }
 
-pub fn unsubscribe(_ctx: &ApiContext, _id: String, _email: String, _key: String) -> BoxFuture<()> {
-    futures::done(Err(failure::err_msg("Not implemented yet")).into()).boxed()
+pub fn unsubscribe(_ctx: &ApiContext, id: String, email: String, key: String) -> BoxFuture<()> {
+    drop(id); // make clippy happy until we consume these
+    drop(email);
+    drop(key);
+    futures::done(Err(failure::err_msg("Not implemented yet"))).boxed()
 }
 
 #[cfg(test)]
