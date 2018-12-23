@@ -20,16 +20,9 @@ lazy_static ="1.1"
 maplit = "1.0.1"
 num-traits = "0.2"
 
-intern = "0.2.0"
-
 futures = "0.1"
 
-log = "0.4.6"
-env_logger = "0.5.13"
 slog = "2.4.1"
-slog-term = "2.4.0"
-slog-json = "2.2.0"
-slog-async = "2.3.0"
 slog-scope = "4.0.1"
 
 prometheus = "0.4.2"

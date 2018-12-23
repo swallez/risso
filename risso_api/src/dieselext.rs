@@ -8,8 +8,8 @@ use diesel::serialize::{self, Output, ToSql};
 use diesel::sql_types::BigInt;
 use diesel::sql_types::Double;
 use diesel::Expression;
-use serde_derive::{Deserialize, Serialize};
 use num_traits::cast::ToPrimitive;
+use serde_derive::{Deserialize, Serialize};
 
 use std;
 use std::io::Write;
@@ -56,7 +56,7 @@ where
 {
     fn from_sql(value: Option<&<DB as Backend>::RawValue>) -> deserialize::Result<Self> {
         let f64_value = <f64 as FromSql<Double, DB>>::from_sql(value)?;
-        Self::from_f64(f64_value).ok_or_else(||"Can't convert f64 to date".into())
+        Self::from_f64(f64_value).ok_or_else(|| "Can't convert f64 to date".into())
     }
 }
 

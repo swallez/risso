@@ -26,7 +26,7 @@ use validator::Validate;
 mod config;
 pub mod context;
 pub mod dieselext;
-pub mod log_macros;
+pub mod logs;
 pub mod models;
 pub mod schema;
 
@@ -234,7 +234,9 @@ pub fn fetch(ctx: &ApiContext, req: FetchRequest) -> BoxFuture<Vec<CommentRespon
     let _root_id = req.parent;
     let plain = req.is_plain();
 
-    let after: f64 = req.after.map_or(0.0_f64, |date| dieselext::FloatDateTime(date).to_f64());
+    let after: f64 = req
+        .after
+        .map_or(0.0_f64, |date| dieselext::FloatDateTime(date).to_f64());
 
     let req1 = req.clone();
     let reply_counts = ctx.spawn_db(move |cnx| models::Comment::reply_count(cnx, req1.uri, None, after));

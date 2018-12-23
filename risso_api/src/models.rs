@@ -3,7 +3,7 @@
 use crate::context;
 use crate::dieselext;
 use crate::dieselext::*;
-use crate::log_macros::*;
+use crate::logs::macros::*;
 use crate::schema::*;
 
 use diesel::prelude::*;

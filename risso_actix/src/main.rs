@@ -4,8 +4,8 @@
 
 use serde_derive::Deserialize;
 
-pub mod logs;
-pub mod metrics;
+mod metrics;
+mod request_logger;
 
 use actix_web::http::header;
 use actix_web::http::Method;
@@ -14,11 +14,12 @@ use actix_web::{server, App, AsyncResponder, HttpRequest, HttpResponse, Json, Pa
 use std::sync::Once;
 
 use risso_api::context::*;
-use risso_api::log_macros::*;
+use risso_api::logs;
+use risso_api::logs::macros::*;
 
 use futures::prelude::*;
 
-use crate::logs::RequestLogger;
+use crate::request_logger::RequestLogger;
 
 fn unsubscribe(state: State<ApiContext>, path: Path<(String, String, String)>) -> impl Responder {
     let (id, email, key) = path.into_inner();

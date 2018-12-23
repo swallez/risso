@@ -7,7 +7,7 @@ use serde_derive::Deserialize;
 
 use futures::future::Future;
 
-use crate::log_macros::*;
+use crate::logs::macros::*;
 
 #[derive(Deserialize)]
 struct ContextConfig {
